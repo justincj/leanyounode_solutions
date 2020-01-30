@@ -1,39 +1,38 @@
 var http = require('http');
 var url = require('url');
+var http = require('http');
 
+var server = http.createServer(function(req, res) {
+  function isotime(query) {
+    var date = new Date(query);
+    console.log(date);
+    return {
+      hour: date.getHours(),
+      minute: date.getMinutes(),
+      second: date.getSeconds(),
+    };
+  }
 
-var server = http.createServer(function(req, res){
+  function unixtime(query) {
+    var date = new Date(query);
 
+    return {
+      unixtime: date.getTime(),
+    };
+  }
 
+  var {pathname, query} = url.parse(req.url, true);
 
-	if(req.url=='/api/parsetime'){
+  if (pathname == '/api/parsetime') {
+    var resp = isotime(query.iso);
+  }
 
-		var date_query=url.parse(req.url, true).query.iso;
-		var date = new Date(date_query);
+	else if (pathname = '/api/unixtime') {
+    var resp = unixtime(query.iso);
+  }
 
-		var DateObj = {
-			hour: date.getHours(),
-			minute: date.getMinutes(),
-			seconds: date.getSeconds()
-		}
-
-		res.writeHead(200, {'Content-Type': 'application/json'});
-		res.end(JSON.stringify(DateObj));
-
-	}
-	else if(req.url=='/api/unixtime'){
-
-		var  date_query = url.parse(req.url, true).query.iso;
-		var date = new Date(date_query);
-		var DateObj = {
-
-			unixtime: date.getTime()
-		}
-
-		res.writeHead(200, {'Content-Type': 'application/json'});
-		res.end(JSON.stringify(DateObj));
-	}
-})
-
+  res.writeHead(200, {'Content-Type': 'application/json'});
+  res.end(JSON.stringify(resp));
+});
 
 server.listen(process.argv[2]);
